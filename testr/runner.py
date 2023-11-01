@@ -1,10 +1,12 @@
+from dataclasses import dataclass
 from abc import ABC, abstractmethod
+from collections.abc import Iterable
 from enum import Enum, auto
 
 
-class TestStatus(Enum):
+class StatusCode(Enum):
     """
-    Status of an individual test case.
+    Status codes for an individual test case.
     """
 
     AC = auto()
@@ -19,39 +21,52 @@ class TestStatus(Enum):
     """
     Time Limit Exceeded: program took too long to execute this case.
     """
-    WJ = auto()
+    IR = auto()
     """
-    Waiting for Judgement: this test case has not been finished yet.
+    Invalid Return: program did not return 0
     """
 
 
-class TestData(ABC):
-    """Input and output for single test case."""
+@dataclass
+class TestStatus:
+    """
+    Status of an individual test case.
+    """
+    
+    code: StatusCode
+    stderr: str
+    stdout: str
+
+
+class TestInput(ABC):
+    """Input provider for single test case."""
 
     @abstractmethod
-    def get_input(self) -> str: pass
+    async def get_input(self) -> str: pass
+
+
+class TestValidator(ABC):
+    """Output validator for single test case."""
 
     @abstractmethod
-    async def validate_output(self) -> bool: pass
+    async def validate_output(self, output: str) -> bool: pass
 
 
-class TestCase(ABC):
-    """Runner for a single test case."""
+class TestData(TestInput, TestValidator):
+    """Combined input/output for single test case"""
 
-    def __init__(self, data: TestData):
-        self.test_data = data
-        super().__init__()
+    pass
 
-    @property
-    @abstractmethod
-    def status(self) -> TestStatus: pass
+
+class TestRunner(ABC):
+    """Runner for test cases."""
 
     @abstractmethod
-    async def run_test(self) -> None: pass
+    async def run_test(self, data: TestData) -> StatusCode: pass
 
 
 class TestSuite(ABC):
     """Loader for multiple test cases."""
 
     @abstractmethod
-    def __next__(self) -> TestCase: pass
+    def __iter__(self) -> Iterable[TestData]: pass
