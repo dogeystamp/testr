@@ -38,24 +38,24 @@ class ExecutableRunner(TestRunner):
                 stdin=asyncio.subprocess.PIPE,
             )
 
-        input_data = (await data.get_input()).encode()
+        input_data = await data.get_input()
 
         try:
             out_stream, err_stream = await asyncio.wait_for(
-                    proc.communicate(input=input_data), timeout=5.0)
+                    proc.communicate(input=input_data.encode()), timeout=5.0)
         except TimeoutError:
             proc.kill()
-            return TestStatus(code=StatusCode.TLE, stderr="", stdout="")
+            return TestStatus(code=StatusCode.TLE, stderr="", stdout="", stdin=input_data)
 
         stdout: str = out_stream.decode()
         stderr: str = err_stream.decode()
 
         if proc.returncode != 0:
-            return TestStatus(code=StatusCode.IR, stdout=stdout, stderr=stderr)
+            return TestStatus(code=StatusCode.IR, stdout=stdout, stderr=stderr, stdin=input_data)
 
         correct: bool = await data.validate_output(stdout)
         ret_code = StatusCode.AC if correct else StatusCode.WA
-        return TestStatus(code=ret_code, stdout=stdout, stderr=stderr)
+        return TestStatus(code=ret_code, stdout=stdout, stderr=stderr, stdin=input_data)
 
 
 class DirectorySuite(TestSuite):

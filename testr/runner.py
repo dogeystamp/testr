@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
-from collections.abc import Iterable
 from enum import Enum, auto
+from typing import AsyncIterator, Iterator
 
 
 class StatusCode(Enum):
@@ -34,6 +34,7 @@ class TestStatus:
     """
     
     code: StatusCode
+    stdin: str
     stderr: str
     stdout: str
 
@@ -58,15 +59,19 @@ class TestData(TestInput, TestValidator):
     pass
 
 
-class TestRunner(ABC):
-    """Runner for test cases."""
-
-    @abstractmethod
-    async def run_test(self, data: TestData) -> StatusCode: pass
-
-
 class TestSuite(ABC):
     """Loader for multiple test cases."""
 
     @abstractmethod
-    def __iter__(self) -> Iterable[TestData]: pass
+    def __iter__(self) -> Iterator[TestData]: pass
+
+
+class TestRunner(ABC):
+    """Runner for test cases."""
+
+    @abstractmethod
+    async def run_test(self, data: TestData) -> TestStatus: pass
+
+    async def run_test_suite(self, data: TestSuite) -> AsyncIterator[TestStatus]:
+        for test_case in data:
+            yield await self.run_test(test_case)
