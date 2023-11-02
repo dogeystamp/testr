@@ -1,5 +1,5 @@
 import asyncio
-from testr.runner import TestData, TestRunner, TestStatus, TestSuite, StatusCode
+from testr.runner import TestData, TestOptions, TestRunner, TestStatus, TestSuite, StatusCode
 from pathlib import Path
 
 
@@ -30,7 +30,7 @@ class ExecutableRunner(TestRunner):
             raise ValueError(f"executable must be a file, got '{executable}'")
         self.executable = executable
 
-    async def run_test(self, data: TestData) -> TestStatus:
+    async def run_test(self, data: TestData, opts: TestOptions) -> TestStatus:
         proc = await asyncio.create_subprocess_shell(
                 str(self.executable),
                 stdout=asyncio.subprocess.PIPE,
@@ -42,7 +42,7 @@ class ExecutableRunner(TestRunner):
 
         try:
             out_stream, err_stream = await asyncio.wait_for(
-                    proc.communicate(input=input_data.encode()), timeout=5.0)
+                    proc.communicate(input=input_data.encode()), timeout=opts.time_limit)
         except TimeoutError:
             proc.kill()
             return TestStatus(code=StatusCode.TLE, stderr="", stdout="", stdin=input_data)

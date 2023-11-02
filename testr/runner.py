@@ -53,6 +53,21 @@ class TestValidator(ABC):
     async def validate_output(self, output: str) -> bool: pass
 
 
+@dataclass
+class TestOptions:
+    """
+    Options for running a test suite.
+
+    Attributes
+    ----------
+
+    time_limit
+        Time limit in seconds for each test case.
+    """
+
+    time_limit: float
+
+
 class TestData(TestInput, TestValidator):
     """Combined input/output for single test case"""
 
@@ -70,8 +85,8 @@ class TestRunner(ABC):
     """Runner for test cases."""
 
     @abstractmethod
-    async def run_test(self, data: TestData) -> TestStatus: pass
+    async def run_test(self, data: TestData, opts: TestOptions) -> TestStatus: pass
 
-    async def run_test_suite(self, data: TestSuite) -> AsyncIterator[TestStatus]:
+    async def run_test_suite(self, data: TestSuite, opts: TestOptions) -> AsyncIterator[TestStatus]:
         for test_case in data:
-            yield await self.run_test(test_case)
+            yield await self.run_test(test_case, opts)
