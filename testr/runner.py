@@ -27,18 +27,6 @@ class StatusCode(Enum):
     """
 
 
-@dataclass
-class TestStatus:
-    """
-    Status of an individual test case.
-    """
-    
-    code: StatusCode
-    stdin: str
-    stderr: str
-    stdout: str
-
-
 class TestInput(ABC):
     """Input provider for single test case."""
 
@@ -69,9 +57,14 @@ class TestOptions:
 
 
 class TestData(TestInput, TestValidator):
-    """Combined input/output for single test case"""
+    """
+    All information for a single test case.
 
-    pass
+    name
+        Short name for the test case. Can be a file name.
+    """
+
+    name: str
 
 
 class TestSuite(ABC):
@@ -79,6 +72,20 @@ class TestSuite(ABC):
 
     @abstractmethod
     def __iter__(self) -> Iterator[TestData]: pass
+
+
+@dataclass
+class TestStatus:
+    """
+    Status of an individual test case.
+    """
+    
+    code: StatusCode
+
+    test_data: TestData
+
+    stderr: str
+    stdout: str
 
 
 class TestRunner(ABC):

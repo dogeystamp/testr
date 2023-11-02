@@ -1,7 +1,10 @@
+from colorama import just_fix_windows_console, Fore, Style
+just_fix_windows_console()
+
 import asyncio
 from pathlib import Path
 from testr.file_data import DirectorySuite, ExecutableRunner
-from testr.runner import TestOptions
+from testr.runner import StatusCode, TestOptions
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -17,6 +20,14 @@ parser.add_argument("--timelim", help="Time limit in seconds", type=float, defau
 args = parser.parse_args()
 
 
+code_styles = {
+    StatusCode.AC: Fore.GREEN,
+    StatusCode.WA: Fore.RED,
+    StatusCode.IR: Fore.YELLOW,
+    StatusCode.TLE: Fore.YELLOW,
+}
+
+
 async def main():
     test_suite = DirectorySuite(Path(args.testdir))
     test_runner = ExecutableRunner(Path(args.exec))
@@ -27,7 +38,10 @@ async def main():
                 time_limit=args.timelim
             )
         ):
-        print(test_case.code)
+        print(
+                f"{test_case.test_data.name : <20} "
+                f"{code_styles.get(test_case.code, '')}{test_case.code.name : >4}{Style.RESET_ALL}"
+            )
 
 
 if __name__ == "__main__":
