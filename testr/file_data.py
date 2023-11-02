@@ -69,7 +69,7 @@ class DirectorySuite(TestSuite):
         for inp_file in test_dir.glob("*.in"):
             if not inp_file.is_file:
                 continue
-            outp_file = inp_file.with_suffix("out")
+            outp_file = inp_file.with_suffix(".out")
             if not outp_file.is_file():
                 raise ValueError(f"output file '{outp_file}' is not a valid file")
             self.test_cases.append(FileData(inp_file, outp_file))
