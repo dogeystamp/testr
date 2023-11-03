@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gusty-testr"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
 	{ name="dogeystamp", email="dogeystamp@disroot.org" }
 ]

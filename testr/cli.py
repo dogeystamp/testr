@@ -3,8 +3,8 @@ from colorama import just_fix_windows_console, Fore, Style
 
 import asyncio
 from pathlib import Path
-from testr.file_data import DirectorySuite, ExecutableRunner
-from testr.runner import StatusCode, TestOptions
+from .file_data import DirectorySuite, ExecutableRunner
+from .runner import StatusCode, TestOptions
 import argparse
 
 
@@ -50,6 +50,15 @@ async def run_cli():
                 f"{test_case.test_data.name : <15} "
                 f"[ {code_styles.get(test_case.code, '')}{test_case.code.name}{Style.RESET_ALL} ]"
             )
+
+        if test_case.code == StatusCode.IR:
+            print(
+                    "---\n" +
+                    Style.BRIGHT +
+                    "Program stderr:"
+                    + Style.RESET_ALL
+                )
+            print("\n".join([f"  {line}" for line in test_case.stderr.split("\n")]))
 
     if test_case_count > 15:
         print("\n  Summary:\n")
