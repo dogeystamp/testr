@@ -73,7 +73,7 @@ class DirectorySuite(TestSuite):
             outp_file = inp_file.with_suffix(".out")
             if not outp_file.is_file():
                 raise ValueError(f"output file '{outp_file}' is not a valid file")
-            self.test_cases.append(FileData(inp_file, outp_file, name=inp_file.name))
+            self.test_cases.append(FileData(inp_file, outp_file, name=inp_file.with_suffix("").name))
 
 
     def __iter__(self):
