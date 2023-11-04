@@ -1,5 +1,12 @@
 import asyncio
-from testr.runner import TestData, TestOptions, TestRunner, TestStatus, TestSuite, StatusCode
+from testr.runner import (
+    TestData,
+    TestOptions,
+    TestRunner,
+    TestStatus,
+    TestSuite,
+    StatusCode,
+)
 from pathlib import Path
 
 
@@ -33,26 +40,29 @@ class ExecutableRunner(TestRunner):
 
     async def run_test(self, data: TestData, opts: TestOptions) -> TestStatus:
         proc = await asyncio.create_subprocess_shell(
-                str(self.executable),
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-                stdin=asyncio.subprocess.PIPE,
-            )
+            str(self.executable),
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            stdin=asyncio.subprocess.PIPE,
+        )
 
         input_data = await data.get_input()
 
         try:
             out_stream, err_stream = await asyncio.wait_for(
-                    proc.communicate(input=input_data.encode()), timeout=opts.time_limit)
+                proc.communicate(input=input_data.encode()), timeout=opts.time_limit
+            )
         except TimeoutError:
             proc.kill()
-            return TestStatus(code=StatusCode.TLE, stderr="", stdout="", test_data = data)
+            return TestStatus(code=StatusCode.TLE, stderr="", stdout="", test_data=data)
 
         stdout: str = out_stream.decode()
         stderr: str = err_stream.decode()
 
         if proc.returncode != 0:
-            return TestStatus(code=StatusCode.IR, stdout=stdout, stderr=stderr, test_data=data)
+            return TestStatus(
+                code=StatusCode.IR, stdout=stdout, stderr=stderr, test_data=data
+            )
 
         correct: bool = await data.validate_output(stdout)
         ret_code = StatusCode.AC if correct else StatusCode.WA
@@ -73,8 +83,9 @@ class DirectorySuite(TestSuite):
             outp_file = inp_file.with_suffix(".out")
             if not outp_file.is_file():
                 raise ValueError(f"output file '{outp_file}' is not a valid file")
-            self.test_cases.append(FileData(inp_file, outp_file, name=inp_file.with_suffix("").name))
-
+            self.test_cases.append(
+                FileData(inp_file, outp_file, name=inp_file.with_suffix("").name)
+            )
 
     def __iter__(self):
         return self.test_cases.__iter__()

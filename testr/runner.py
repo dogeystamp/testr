@@ -31,14 +31,16 @@ class TestInput(ABC):
     """Input provider for single test case."""
 
     @abstractmethod
-    async def get_input(self) -> str: pass
+    async def get_input(self) -> str:
+        pass
 
 
 class TestValidator(ABC):
     """Output validator for single test case."""
 
     @abstractmethod
-    async def validate_output(self, output: str) -> bool: pass
+    async def validate_output(self, output: str) -> bool:
+        pass
 
 
 @dataclass
@@ -71,7 +73,8 @@ class TestSuite(ABC):
     """Loader for multiple test cases."""
 
     @abstractmethod
-    def __iter__(self) -> Iterator[TestData]: pass
+    def __iter__(self) -> Iterator[TestData]:
+        pass
 
 
 @dataclass
@@ -79,7 +82,7 @@ class TestStatus:
     """
     Status of an individual test case.
     """
-    
+
     code: StatusCode
 
     test_data: TestData
@@ -92,8 +95,11 @@ class TestRunner(ABC):
     """Runner for test cases."""
 
     @abstractmethod
-    async def run_test(self, data: TestData, opts: TestOptions) -> TestStatus: pass
+    async def run_test(self, data: TestData, opts: TestOptions) -> TestStatus:
+        pass
 
-    async def run_test_suite(self, data: TestSuite, opts: TestOptions) -> AsyncIterator[TestStatus]:
+    async def run_test_suite(
+        self, data: TestSuite, opts: TestOptions
+    ) -> AsyncIterator[TestStatus]:
         for test_case in data:
             yield await self.run_test(test_case, opts)
